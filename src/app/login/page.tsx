@@ -40,39 +40,20 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-950 flex-col justify-between p-12">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/logo.png"
-            alt="MTC La Carolina"
-            width={44}
-            height={44}
-            className="rounded-xl object-contain"
-          />
-          <div>
-            <span className="text-xl font-bold text-white tracking-tight block">
-              La Carolina
-            </span>
-            <span className="text-[11px] text-slate-500">
-              Transporte con Corazon
-            </span>
-          </div>
-        </div>
-
-        <div>
-          <h1 className="text-4xl font-bold text-white leading-tight">
-            Seguimiento de
-            <br />
-            <span className="text-amber-400">Conductores</span>
-          </h1>
-          <p className="mt-4 text-slate-400 text-lg max-w-md leading-relaxed">
-            Plataforma de gestion y seguimiento a la rotacion del personal de
-            conduccion.
-          </p>
-        </div>
-
-        <p className="text-sm text-slate-700">
+      {/* Left panel — branding (desktop only) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-950 flex-col items-center justify-center p-12 relative">
+        <Image
+          src="/logo-white.png"
+          alt="MTC La Carolina"
+          width={320}
+          height={125}
+          className="object-contain"
+          priority
+        />
+        <p className="mt-8 text-slate-500 text-sm">
+          Plataforma de seguimiento a conductores
+        </p>
+        <p className="absolute bottom-8 text-xs text-slate-700">
           &copy; {new Date().getFullYear()} Metropolitana de Transportes La
           Carolina S.A.S.
         </p>
@@ -81,21 +62,16 @@ export default function LoginPage() {
       {/* Right panel — form */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-white min-h-screen lg:min-h-0">
         <div className="w-full max-w-sm">
-          {/* Mobile branding */}
-          <div className="lg:hidden flex flex-col items-center mb-10">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex justify-center mb-10">
             <Image
               src="/logo.png"
               alt="MTC La Carolina"
-              width={80}
-              height={80}
-              className="rounded-2xl object-contain mb-4"
+              width={180}
+              height={70}
+              className="object-contain"
+              priority
             />
-            <span className="text-lg font-bold text-slate-900">
-              La Carolina
-            </span>
-            <span className="text-xs text-slate-400">
-              Transporte con Corazon
-            </span>
           </div>
 
           <h2 className="text-2xl font-bold text-slate-900 text-center lg:text-left">

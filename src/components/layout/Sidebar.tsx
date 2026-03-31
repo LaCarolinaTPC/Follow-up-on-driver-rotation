@@ -37,25 +37,16 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
           collapsed ? "w-[68px]" : "w-[260px]"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        {/* Brand with logo */}
-        <div className="h-16 flex items-center gap-3 px-4 border-b border-slate-800/80 shrink-0">
+        {/* Logo only — no text */}
+        <div className={`h-16 flex items-center justify-center border-b border-slate-800/80 shrink-0 ${collapsed ? "px-2" : "px-5"}`}>
           <Image
-            src="/logo.png"
+            src="/logo-white.png"
             alt="MTC La Carolina"
-            width={36}
-            height={36}
-            className="rounded-lg shrink-0 object-contain"
+            width={collapsed ? 36 : 140}
+            height={collapsed ? 36 : 55}
+            className="object-contain"
+            priority
           />
-          {!collapsed && (
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-[14px] font-bold text-white tracking-tight truncate">
-                La Carolina
-              </span>
-              <span className="text-[10px] text-slate-500 truncate">
-                Transporte con Corazon
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Nav */}
@@ -133,15 +124,14 @@ export function MobileTopBar() {
       >
         <Menu className="w-5 h-5" />
       </button>
-      <div className="ml-3 flex items-center gap-2">
+      <div className="ml-3">
         <Image
-          src="/logo.png"
-          alt="MTC"
-          width={28}
-          height={28}
-          className="rounded object-contain"
+          src="/logo-dark.png"
+          alt="MTC La Carolina"
+          width={100}
+          height={32}
+          className="object-contain"
         />
-        <span className="text-sm font-bold text-text-primary">La Carolina</span>
       </div>
     </div>
   );
