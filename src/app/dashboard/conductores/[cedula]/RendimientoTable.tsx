@@ -28,7 +28,7 @@ export default function RendimientoTable({ cierres }: { cierres: Cierre[] }) {
           description="Los registros de cierre apareceran aqui"
         />
       ) : (
-        <div className="max-h-[400px] overflow-y-auto">
+        <div className="max-h-[400px] overflow-auto">
           <table className="w-full text-sm">
             <thead className="bg-bg sticky top-0 z-10">
               <tr>

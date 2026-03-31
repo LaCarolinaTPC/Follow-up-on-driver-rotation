@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Users,
   BarChart3,
   FileSpreadsheet,
-  Bus,
   PanelLeftClose,
   Menu,
 } from "lucide-react";
@@ -37,18 +37,22 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
           collapsed ? "w-[68px]" : "w-[260px]"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        {/* Brand */}
-        <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-800/80 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
-            <Bus className="w-5 h-5 text-amber-400" />
-          </div>
+        {/* Brand with logo */}
+        <div className="h-16 flex items-center gap-3 px-4 border-b border-slate-800/80 shrink-0">
+          <Image
+            src="/logo.png"
+            alt="MTC La Carolina"
+            width={36}
+            height={36}
+            className="rounded-lg shrink-0 object-contain"
+          />
           {!collapsed && (
             <div className="flex flex-col overflow-hidden">
-              <span className="text-[15px] font-bold text-white tracking-tight truncate">
-                MTC La Carolina
+              <span className="text-[14px] font-bold text-white tracking-tight truncate">
+                La Carolina
               </span>
-              <span className="text-[11px] text-slate-500 truncate">
-                Seguimiento Conductores
+              <span className="text-[10px] text-slate-500 truncate">
+                Transporte con Corazon
               </span>
             </div>
           )}
@@ -56,7 +60,9 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
 
         {/* Nav */}
         <nav className="flex-1 py-5 px-3 space-y-1 overflow-y-auto">
-          <p className={`text-[10px] font-semibold uppercase tracking-widest text-slate-600 mb-3 ${collapsed ? "text-center" : "px-3"}`}>
+          <p
+            className={`text-[10px] font-semibold uppercase tracking-widest text-slate-600 mb-3 ${collapsed ? "text-center" : "px-3"}`}
+          >
             {collapsed ? "—" : "Menu"}
           </p>
           {navItems.map((item) => {
@@ -73,7 +79,9 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
                 }`}
               >
                 <item.icon className="w-[18px] h-[18px] shrink-0" />
-                {!collapsed && <span className="truncate">{item.label}</span>}
+                {!collapsed && (
+                  <span className="truncate">{item.label}</span>
+                )}
               </Link>
             );
           })}
@@ -126,8 +134,14 @@ export function MobileTopBar() {
         <Menu className="w-5 h-5" />
       </button>
       <div className="ml-3 flex items-center gap-2">
-        <Bus className="w-4 h-4 text-accent" />
-        <span className="text-sm font-bold text-text-primary">MTC La Carolina</span>
+        <Image
+          src="/logo.png"
+          alt="MTC"
+          width={28}
+          height={28}
+          className="rounded object-contain"
+        />
+        <span className="text-sm font-bold text-text-primary">La Carolina</span>
       </div>
     </div>
   );
@@ -143,7 +157,7 @@ export function DashboardContent({ children }: { children: React.ReactNode }) {
       }`}
     >
       <MobileTopBar />
-      <main className="p-6">{children}</main>
+      <main className="p-4 sm:p-6">{children}</main>
     </div>
   );
 }

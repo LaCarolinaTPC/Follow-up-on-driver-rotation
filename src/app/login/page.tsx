@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { Bus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -38,16 +39,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left panel — branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-slate-950 flex-col justify-between p-12">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center">
-            <Bus className="w-6 h-6 text-amber-400" />
+          <Image
+            src="/logo.png"
+            alt="MTC La Carolina"
+            width={44}
+            height={44}
+            className="rounded-xl object-contain"
+          />
+          <div>
+            <span className="text-xl font-bold text-white tracking-tight block">
+              La Carolina
+            </span>
+            <span className="text-[11px] text-slate-500">
+              Transporte con Corazon
+            </span>
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">
-            MTC La Carolina
-          </span>
         </div>
 
         <div>
@@ -69,20 +79,29 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-white min-h-screen lg:min-h-0">
         <div className="w-full max-w-sm">
           {/* Mobile branding */}
-          <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center">
-              <Bus className="w-5 h-5 text-amber-400" />
-            </div>
+          <div className="lg:hidden flex flex-col items-center mb-10">
+            <Image
+              src="/logo.png"
+              alt="MTC La Carolina"
+              width={80}
+              height={80}
+              className="rounded-2xl object-contain mb-4"
+            />
             <span className="text-lg font-bold text-slate-900">
-              MTC La Carolina
+              La Carolina
+            </span>
+            <span className="text-xs text-slate-400">
+              Transporte con Corazon
             </span>
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-900">Iniciar sesion</h2>
-          <p className="mt-2 text-sm text-slate-500">
+          <h2 className="text-2xl font-bold text-slate-900 text-center lg:text-left">
+            Iniciar sesion
+          </h2>
+          <p className="mt-2 text-sm text-slate-500 text-center lg:text-left">
             Ingresa tus credenciales para continuar
           </p>
 

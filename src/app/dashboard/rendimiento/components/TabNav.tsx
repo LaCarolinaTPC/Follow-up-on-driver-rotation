@@ -15,7 +15,7 @@ export default function TabNav({
   onChange: (id: string) => void;
 }) {
   return (
-    <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
+    <div className="flex gap-1 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none" style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
