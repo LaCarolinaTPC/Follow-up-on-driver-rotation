@@ -1,0 +1,42 @@
+{
+  "name": "mtc-conductores",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "npx tsx supabase/seed/run-all.ts",
+    "seed:conductores": "npx tsx supabase/seed/seed-conductores.ts",
+    "seed:cierres": "npx tsx supabase/seed/seed-cierres.ts",
+    "seed:vp": "npx tsx supabase/seed/seed-viajes-perdidos.ts",
+    "seed:ausentismo": "npx tsx supabase/seed/seed-ausentismo.ts",
+    "seed:familia": "npx tsx supabase/seed/seed-familia.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.101.0",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "dotenv": "^17.3.1",
+    "lucide-react": "^1.7.0",
+    "next": "^16.2.1",
+    "pg": "^8.20.0",
+    "postcss": "^8.5.8",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
