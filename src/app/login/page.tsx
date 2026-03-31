@@ -41,19 +41,29 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left panel — branding (desktop only) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-950 flex-col items-center justify-center p-12 relative">
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-950 flex-col justify-between p-12">
         <Image
           src="/logo-white.png"
           alt="MTC La Carolina"
-          width={320}
-          height={125}
+          width={160}
+          height={63}
           className="object-contain"
           priority
         />
-        <p className="mt-8 text-slate-500 text-sm">
-          Plataforma de seguimiento a conductores
-        </p>
-        <p className="absolute bottom-8 text-xs text-slate-700">
+
+        <div>
+          <h1 className="text-4xl font-bold text-white leading-tight">
+            Seguimiento de
+            <br />
+            <span className="text-amber-400">Conductores</span>
+          </h1>
+          <p className="mt-4 text-slate-400 text-lg max-w-md leading-relaxed">
+            Plataforma de gestion y seguimiento a la rotacion del personal de
+            conduccion.
+          </p>
+        </div>
+
+        <p className="text-sm text-slate-700">
           &copy; {new Date().getFullYear()} Metropolitana de Transportes La
           Carolina S.A.S.
         </p>
