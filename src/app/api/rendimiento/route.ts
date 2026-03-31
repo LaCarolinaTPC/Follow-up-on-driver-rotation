@@ -34,9 +34,11 @@ interface ConductorAgg {
   >;
 }
 
-async function fetchAll(table: string, select: string, filter?: { col: string; val: string }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAll(table: string, select: string, filter?: { col: string; val: string }): Promise<any[]> {
   const PAGE = 1000;
-  let all: Record<string, unknown>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let all: any[] = [];
   let from = 0;
   while (true) {
     let q = supabase.from(table).select(select).range(from, from + PAGE - 1);
