@@ -1,18 +1,48 @@
-import { FileSpreadsheet } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import DatosClient from "./DatosClient";
 
-export default function DatosPage() {
+export default async function DatosPage() {
+  const supabase = await createClient();
+
+  // Fetch upload history
+  const { data: history } = await supabase
+    .from("data_uploads")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  // Compute last upload per file type
+  const lastUploads: Record<
+    string,
+    { date: string; rows: number; by: string | null } | null
+  > = {};
+
+  const fileTypes = [
+    "conductores_activos",
+    "conductores_retirados",
+    "cierres_diarios",
+    "viajes_perdidos",
+    "ausentismo",
+    "familia",
+  ];
+
+  for (const ft of fileTypes) {
+    const entry = (history || []).find(
+      (h: Record<string, unknown>) => h.file_type === ft
+    );
+    lastUploads[ft] = entry
+      ? {
+          date: entry.created_at as string,
+          rows: entry.rows_processed as number,
+          by: entry.uploaded_by as string | null,
+        }
+      : null;
+  }
+
   return (
-    <div className="max-w-4xl mx-auto pt-16 text-center animate-fade-in">
-      <div className="mx-auto w-16 h-16 rounded-2xl bg-warning-bg flex items-center justify-center mb-6">
-        <FileSpreadsheet className="w-7 h-7 text-warning" />
-      </div>
-      <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
-        Carga de Datos
-      </h1>
-      <p className="text-sm text-text-tertiary mt-2 max-w-md mx-auto">
-        Sube los archivos Excel para actualizar la informacion de conductores,
-        cierres diarios, viajes perdidos y ausentismo. Proximamente.
-      </p>
-    </div>
+    <DatosClient
+      lastUploads={lastUploads}
+      history={history || []}
+    />
   );
 }
