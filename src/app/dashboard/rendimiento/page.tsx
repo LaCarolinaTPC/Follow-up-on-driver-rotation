@@ -1,13 +1,6 @@
 import { BarChart3 } from "lucide-react";
 import RendimientoDashboard from "./RendimientoDashboard";
-
-async function getRendimientoData() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  const res = await fetch(`${baseUrl}/api/rendimiento`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
-}
+import { getRendimientoData } from "@/lib/data/rendimiento";
 
 export default async function RendimientoPage() {
   const data = await getRendimientoData();

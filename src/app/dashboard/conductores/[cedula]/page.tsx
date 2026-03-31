@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getConductorProfile } from "@/lib/data/conductor";
 import ProfileHeader from "./ProfileHeader";
 import KpiCards from "./KpiCards";
 import AnalisisQuincenas from "./AnalisisQuincenas";
@@ -9,16 +10,6 @@ import PersonalInfo from "./PersonalInfo";
 import AusentismoSection from "./AusentismoSection";
 import FamiliaSection from "./FamiliaSection";
 
-async function getConductorProfile(cedula: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  const res = await fetch(`${baseUrl}/api/conductor/${cedula}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
-
 export default async function ConductorPage({
   params,
 }: {
@@ -27,12 +18,12 @@ export default async function ConductorPage({
   const { cedula } = await params;
   const profile = await getConductorProfile(cedula);
 
-  if (!profile || !profile.conductor) {
+  if (!profile) {
     notFound();
   }
 
-  const { conductor, cierres, viajes_perdidos, ausentismo, familia, kpis } =
-    profile;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { conductor, cierres, viajes_perdidos, ausentismo, familia, kpis } = profile as any;
 
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
