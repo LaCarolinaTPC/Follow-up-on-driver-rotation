@@ -58,13 +58,28 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
     setFiles((f) => f.filter((_, i) => i !== idx));
   }
 
+  async function postJSON(body: Record<string, unknown>) {
+    const res = await fetch("/api/upload-records", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      const text = await res.text();
+      throw new Error(`Error del servidor (${res.status}): ${text.slice(0, 120)}`);
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Error del servidor");
+    return data;
+  }
+
   async function handleUpload() {
     if (files.length === 0) return;
     setStatus("uploading");
     setProgress(5);
 
     try {
-      // Lazy load processors + XLSX only when uploading
       const {
         processConductores,
         processCierres,
@@ -75,9 +90,10 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
 
       setProgress(10);
       const allResults: UploadResult[] = [];
+      const CHUNK_SIZE = 500;
 
       for (const file of files) {
-        setProgress(20);
+        setProgress(15);
         const arrayBuffer = await file.arrayBuffer();
         let processed;
 
@@ -102,33 +118,55 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
             break;
         }
 
-        setProgress(50);
+        setProgress(30);
 
-        const res = await fetch("/api/upload-records", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileType,
-            fileName: file.name,
-            records: processed.records,
-            errors: processed.errors,
-            periodos: processed.periodos,
-          }),
+        // Step 1: Prepare (delete if needed)
+        await postJSON({
+          action: "prepare",
+          fileType,
+          fileName: file.name,
+          periodos: processed.periodos,
         });
 
-        setProgress(85);
+        // Step 2: Send records in chunks
+        let rowsProcessed = 0;
+        let rowsErrors = 0;
+        const errors: string[] = [...processed.errors];
+        const total = processed.records.length;
 
-        let data;
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          data = await res.json();
-        } else {
-          const text = await res.text();
-          throw new Error(`Error del servidor (${res.status}): ${text.slice(0, 120)}`);
+        for (let i = 0; i < total; i += CHUNK_SIZE) {
+          const chunk = processed.records.slice(i, i + CHUNK_SIZE);
+          const pct = 30 + Math.round(((i + chunk.length) / total) * 55);
+          setProgress(pct);
+
+          const res = await postJSON({
+            action: "chunk",
+            fileType,
+            fileName: file.name,
+            records: chunk,
+          });
+
+          if (res.ok) {
+            rowsProcessed += chunk.length;
+          } else {
+            rowsErrors += res.failed || chunk.length;
+            errors.push(res.error || `Error en lote ${i}`);
+          }
         }
 
-        if (!res.ok) throw new Error(data.error || "Error del servidor");
-        allResults.push(...data.results);
+        // Step 3: Finish (log upload)
+        setProgress(90);
+        const finishRes = await postJSON({
+          action: "finish",
+          fileType,
+          fileName: file.name,
+          rowsProcessed,
+          rowsErrors,
+          errors,
+          periodos: processed.periodos,
+        });
+
+        allResults.push(...finishRes.results);
       }
 
       setResults(allResults);
