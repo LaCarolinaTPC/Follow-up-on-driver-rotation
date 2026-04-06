@@ -77,28 +77,28 @@ export async function POST(request: NextRequest) {
     const results: UploadResult[] = [];
 
     for (const file of files) {
-      const buffer = Buffer.from(await file.arrayBuffer());
+      const data = new Uint8Array(await file.arrayBuffer());
       let processed;
 
       try {
         switch (fileType) {
           case "conductores_activos":
-            processed = processConductores(buffer, "ACTIVO");
+            processed = processConductores(data, "ACTIVO");
             break;
           case "conductores_retirados":
-            processed = processConductores(buffer, "RETIRADO");
+            processed = processConductores(data, "RETIRADO");
             break;
           case "cierres_diarios":
-            processed = processCierres(buffer, file.name);
+            processed = processCierres(data, file.name);
             break;
           case "viajes_perdidos":
-            processed = processViajesPerdidos(buffer, file.name);
+            processed = processViajesPerdidos(data, file.name);
             break;
           case "ausentismo":
-            processed = processAusentismo(buffer, file.name);
+            processed = processAusentismo(data, file.name);
             break;
           case "familia":
-            processed = processFamilia(buffer);
+            processed = processFamilia(data);
             break;
         }
       } catch (e) {

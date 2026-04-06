@@ -1,41 +1,18 @@
-import * as XLSX from "xlsx";
 import {
+  parseSheet,
   excelDateToISO,
   toStr,
   toNum,
   normalizeCedula,
-} from "@/lib/utils/excel-parser";
+  findCol,
+} from "./excel-utils";
 import type { ProcessResult } from "./types";
 
-function parseBuffer(
-  buffer: Buffer,
-  sheetName?: string,
-  headerRow = 1
-): Record<string, unknown>[] {
-  const workbook = XLSX.read(buffer, { type: "buffer" });
-  const sheet = workbook.Sheets[sheetName || workbook.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(sheet, { range: headerRow - 1 });
-}
-
-// Helper for ausentismo fuzzy column matching
-function findCol(
-  row: Record<string, unknown>,
-  ...keywords: string[]
-): unknown {
-  for (const key of Object.keys(row)) {
-    const norm = key.toUpperCase().trim();
-    for (const kw of keywords) {
-      if (norm.includes(kw.toUpperCase())) return row[key];
-    }
-  }
-  return null;
-}
-
 export function processConductores(
-  buffer: Buffer,
+  data: ArrayBuffer | Uint8Array,
   estado: "ACTIVO" | "RETIRADO"
 ): ProcessResult {
-  const rows = parseBuffer(buffer, "Worksheet", 5);
+  const rows = parseSheet(data, "Worksheet", 5);
   const records: Record<string, unknown>[] = [];
   const errors: string[] = [];
   const seen = new Set<string>();
@@ -85,10 +62,10 @@ export function processConductores(
 }
 
 export function processCierres(
-  buffer: Buffer,
+  data: ArrayBuffer | Uint8Array,
   fileName: string
 ): ProcessResult {
-  const rows = parseBuffer(buffer, undefined, 6);
+  const rows = parseSheet(data, undefined, 6);
   const records: Record<string, unknown>[] = [];
   const errors: string[] = [];
   const seenKeys = new Set<string>();
@@ -132,10 +109,10 @@ export function processCierres(
 }
 
 export function processViajesPerdidos(
-  buffer: Buffer,
+  data: ArrayBuffer | Uint8Array,
   fileName: string
 ): ProcessResult {
-  const rows = parseBuffer(buffer, undefined, 5);
+  const rows = parseSheet(data, undefined, 5);
   const records: Record<string, unknown>[] = [];
   const errors: string[] = [];
   const periodos = new Set<string>();
@@ -182,10 +159,10 @@ export function processViajesPerdidos(
 }
 
 export function processAusentismo(
-  buffer: Buffer,
+  data: ArrayBuffer | Uint8Array,
   fileName: string
 ): ProcessResult {
-  const rows = parseBuffer(buffer, "BASE DE AUSENTISMO", 2);
+  const rows = parseSheet(data, "BASE DE AUSENTISMO", 2);
   const records: Record<string, unknown>[] = [];
   const errors: string[] = [];
 
@@ -236,8 +213,8 @@ export function processAusentismo(
   return { records, errors };
 }
 
-export function processFamilia(buffer: Buffer): ProcessResult {
-  const rows = parseBuffer(buffer, "Hijos_Conyugue", 1);
+export function processFamilia(data: ArrayBuffer | Uint8Array): ProcessResult {
+  const rows = parseSheet(data, "Hijos_Conyugue", 1);
   const records: Record<string, unknown>[] = [];
   const errors: string[] = [];
 

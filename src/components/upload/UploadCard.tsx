@@ -15,6 +15,13 @@ import {
   Heart,
 } from "lucide-react";
 import { FILE_TYPE_CONFIG, type FileType, type UploadResult } from "@/lib/upload/types";
+import {
+  processConductores,
+  processCierres,
+  processViajesPerdidos,
+  processAusentismo,
+  processFamilia,
+} from "@/lib/upload/processors";
 
 const ICONS: Record<FileType, React.ReactNode> = {
   conductores_activos: <Users className="w-5 h-5" />,
@@ -60,48 +67,71 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
 
   async function handleUpload() {
     if (files.length === 0) return;
-
-    const totalSize = files.reduce((sum, f) => sum + f.size, 0);
-    if (totalSize > 4.5 * 1024 * 1024) {
-      setStatus("error");
-      setErrorMsg(
-        `El archivo pesa ${(totalSize / (1024 * 1024)).toFixed(1)} MB. El limite es ~4.5 MB. Reduce el archivo e intenta de nuevo.`
-      );
-      return;
-    }
-
     setStatus("uploading");
-    setProgress(15);
-
-    const formData = new FormData();
-    formData.append("fileType", fileType);
-    for (const file of files) {
-      formData.append("files", file);
-    }
-
-    setProgress(30);
+    setProgress(10);
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      setProgress(85);
+      const allResults: UploadResult[] = [];
 
-      let data;
-      const contentType = res.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        throw new Error(
-          res.status === 413
-            ? "El archivo excede el limite de tamaño permitido (~4.5 MB). Intenta con un archivo mas pequeño."
-            : `Error del servidor (${res.status}): ${text.slice(0, 120)}`
-        );
+      for (const file of files) {
+        // Parse Excel client-side
+        setProgress(20);
+        const arrayBuffer = await file.arrayBuffer();
+        let processed;
+
+        switch (fileType) {
+          case "conductores_activos":
+            processed = processConductores(arrayBuffer, "ACTIVO");
+            break;
+          case "conductores_retirados":
+            processed = processConductores(arrayBuffer, "RETIRADO");
+            break;
+          case "cierres_diarios":
+            processed = processCierres(arrayBuffer, file.name);
+            break;
+          case "viajes_perdidos":
+            processed = processViajesPerdidos(arrayBuffer, file.name);
+            break;
+          case "ausentismo":
+            processed = processAusentismo(arrayBuffer, file.name);
+            break;
+          case "familia":
+            processed = processFamilia(arrayBuffer);
+            break;
+        }
+
+        setProgress(50);
+
+        // Send parsed records as JSON
+        const res = await fetch("/api/upload-records", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileType,
+            fileName: file.name,
+            records: processed.records,
+            errors: processed.errors,
+            periodos: processed.periodos,
+          }),
+        });
+
+        setProgress(85);
+
+        let data;
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          throw new Error(`Error del servidor (${res.status}): ${text.slice(0, 120)}`);
+        }
+
+        if (!res.ok) throw new Error(data.error || "Error del servidor");
+        allResults.push(...data.results);
       }
 
-      if (!res.ok) throw new Error(data.error || "Error del servidor");
-
-      setResults(data.results);
-      const hasErrors = data.results.some((r: UploadResult) => r.rowsErrors > 0);
+      setResults(allResults);
+      const hasErrors = allResults.some((r) => r.rowsErrors > 0);
       setStatus(hasErrors ? "error" : "success");
       setProgress(100);
       onComplete?.();
