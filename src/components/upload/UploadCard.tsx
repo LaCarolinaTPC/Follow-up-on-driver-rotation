@@ -15,13 +15,6 @@ import {
   Heart,
 } from "lucide-react";
 import { FILE_TYPE_CONFIG, type FileType, type UploadResult } from "@/lib/upload/types";
-import {
-  processConductores,
-  processCierres,
-  processViajesPerdidos,
-  processAusentismo,
-  processFamilia,
-} from "@/lib/upload/processors";
 
 const ICONS: Record<FileType, React.ReactNode> = {
   conductores_activos: <Users className="w-5 h-5" />,
@@ -68,13 +61,22 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
   async function handleUpload() {
     if (files.length === 0) return;
     setStatus("uploading");
-    setProgress(10);
+    setProgress(5);
 
     try {
+      // Lazy load processors + XLSX only when uploading
+      const {
+        processConductores,
+        processCierres,
+        processViajesPerdidos,
+        processAusentismo,
+        processFamilia,
+      } = await import("@/lib/upload/processors");
+
+      setProgress(10);
       const allResults: UploadResult[] = [];
 
       for (const file of files) {
-        // Parse Excel client-side
         setProgress(20);
         const arrayBuffer = await file.arrayBuffer();
         let processed;
@@ -102,7 +104,6 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
 
         setProgress(50);
 
-        // Send parsed records as JSON
         const res = await fetch("/api/upload-records", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
