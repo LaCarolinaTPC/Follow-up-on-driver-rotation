@@ -60,6 +60,16 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
 
   async function handleUpload() {
     if (files.length === 0) return;
+
+    const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+    if (totalSize > 4.5 * 1024 * 1024) {
+      setStatus("error");
+      setErrorMsg(
+        `El archivo pesa ${(totalSize / (1024 * 1024)).toFixed(1)} MB. El limite es ~4.5 MB. Reduce el archivo e intenta de nuevo.`
+      );
+      return;
+    }
+
     setStatus("uploading");
     setProgress(15);
 
@@ -74,7 +84,19 @@ export default function UploadCard({ fileType, lastUpload, onComplete }: Props) 
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       setProgress(85);
-      const data = await res.json();
+
+      let data;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(
+          res.status === 413
+            ? "El archivo excede el limite de tamaño permitido (~4.5 MB). Intenta con un archivo mas pequeño."
+            : `Error del servidor (${res.status}): ${text.slice(0, 120)}`
+        );
+      }
 
       if (!res.ok) throw new Error(data.error || "Error del servidor");
 
