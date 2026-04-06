@@ -296,8 +296,8 @@ export async function GET() {
   // EVOLUCION - compare first 2 quincenas if available
   let evolucion = null;
   if (sortedQKeys.length >= 2) {
-    const q1Key = sortedQKeys[0];
-    const q2Key = sortedQKeys[1];
+    const q1Key = sortedQKeys[sortedQKeys.length - 2];
+    const q2Key = sortedQKeys[sortedQKeys.length - 1];
 
     const evoList = conductorList
       .filter((c) => c.quincenas[q1Key]?.dias > 0 || c.quincenas[q2Key]?.dias > 0)

@@ -74,6 +74,7 @@ interface RendimientoData {
     porGrupo: Array<{ grupo: string; count: number }>;
     topConductores: Array<{ nombre: string; grupo: string; accidentes: number; timbradas: number }>;
   };
+  periodoLabel: string;
   tablaCompleta: Array<{
     cedula: string;
     nombre: string;
@@ -106,9 +107,11 @@ export default function RendimientoDashboard({ data }: { data: RendimientoData }
         <h1 className="text-2xl font-bold tracking-tight text-text-primary">
           Dashboard de Rendimiento
         </h1>
-        <p className="text-sm text-text-tertiary mt-1">
-          Febrero — Marzo 2026
-        </p>
+        {data.periodoLabel && (
+          <p className="text-sm text-text-tertiary mt-1">
+            {data.periodoLabel}
+          </p>
+        )}
       </div>
 
       <div className="mb-6">

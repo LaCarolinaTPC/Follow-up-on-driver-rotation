@@ -175,7 +175,7 @@ export async function getRendimientoData() {
 
   let evolucion = null;
   if (sortedQKeys.length >= 2) {
-    const q1Key = sortedQKeys[0], q2Key = sortedQKeys[1];
+    const q1Key = sortedQKeys[sortedQKeys.length - 2], q2Key = sortedQKeys[sortedQKeys.length - 1];
     const evoList = conductorList.filter((c) => c.quincenas[q1Key]?.dias > 0 || c.quincenas[q2Key]?.dias > 0).map((c) => {
       const q1 = c.quincenas[q1Key], q2 = c.quincenas[q2Key];
       const promQ1 = q1 && q1.dias > 0 ? Math.round(q1.timbradas / q1.dias) : 0;
@@ -211,5 +211,21 @@ export async function getRendimientoData() {
   const ausPorConductor: Record<string, number> = {};
   for (const a of aus) ausPorConductor[a.cedula] = (ausPorConductor[a.cedula] || 0) + (a.dias_it_pagados || 0);
 
-  return { resumen, grupos: gruposSummary, distribucionTim, quincenaStats, quincenaKeys: sortedQKeys, quincenaTabla, evolucion, accidentalidad, tablaCompleta, ausPorConductor };
+  // Compute date range label from actual data
+  const allFechas = cierres.map((c: { fecha: string }) => c.fecha).filter(Boolean).sort();
+  let periodoLabel = "";
+  if (allFechas.length > 0) {
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const first = allFechas[0];
+    const last = allFechas[allFechas.length - 1];
+    const m1 = meses[parseInt(first.slice(5, 7), 10) - 1];
+    const m2 = meses[parseInt(last.slice(5, 7), 10) - 1];
+    const y1 = first.slice(0, 4);
+    const y2 = last.slice(0, 4);
+    periodoLabel = m1 === m2 && y1 === y2
+      ? `${m1} ${y1}`
+      : `${m1} — ${m2} ${y2}`;
+  }
+
+  return { resumen, grupos: gruposSummary, distribucionTim, quincenaStats, quincenaKeys: sortedQKeys, quincenaTabla, evolucion, accidentalidad, tablaCompleta, ausPorConductor, periodoLabel };
 }
