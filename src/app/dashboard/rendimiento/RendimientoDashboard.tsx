@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import TabNav from "./components/TabNav";
+import PeriodFilter from "./components/PeriodFilter";
 import ResumenTab from "./tabs/ResumenTab";
 import GrupoDetalleTab from "./tabs/GrupoDetalleTab";
 import AccidentalidadTab from "./tabs/AccidentalidadTab";
@@ -91,7 +92,13 @@ interface RendimientoData {
   }>;
 }
 
-export default function RendimientoDashboard({ data }: { data: RendimientoData }) {
+interface Props {
+  data: RendimientoData;
+  fechaDesde?: string;
+  fechaHasta?: string;
+}
+
+export default function RendimientoDashboard({ data, fechaDesde, fechaHasta }: Props) {
   const [activeTab, setActiveTab] = useState("resumen");
 
   const grupoIds = ["0-3m", "3-6m", "6-12m", "1+a"];
@@ -113,6 +120,12 @@ export default function RendimientoDashboard({ data }: { data: RendimientoData }
           </p>
         )}
       </div>
+
+      <PeriodFilter
+        quincenaKeys={data.quincenaKeys}
+        fechaDesde={fechaDesde}
+        fechaHasta={fechaHasta}
+      />
 
       <div className="mb-6">
         <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />

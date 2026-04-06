@@ -2,8 +2,13 @@ import { BarChart3 } from "lucide-react";
 import RendimientoDashboard from "./RendimientoDashboard";
 import { getRendimientoData } from "@/lib/data/rendimiento";
 
-export default async function RendimientoPage() {
-  const data = await getRendimientoData();
+export default async function RendimientoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ desde?: string; hasta?: string }>;
+}) {
+  const params = await searchParams;
+  const data = await getRendimientoData(params.desde, params.hasta);
 
   if (!data) {
     return (
@@ -21,5 +26,11 @@ export default async function RendimientoPage() {
     );
   }
 
-  return <RendimientoDashboard data={data} />;
+  return (
+    <RendimientoDashboard
+      data={data}
+      fechaDesde={params.desde}
+      fechaHasta={params.hasta}
+    />
+  );
 }

@@ -1,14 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fetchAll(supabase: any, table: string, select: string, filter?: { col: string; val: string }): Promise<any[]> {
+async function fetchAll(supabase: any, table: string, select: string, opts?: {
+  filter?: { col: string; val: string };
+  dateRange?: { col: string; desde?: string; hasta?: string };
+}): Promise<any[]> {
   const PAGE = 1000;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let all: any[] = [];
   let from = 0;
   while (true) {
     let q = supabase.from(table).select(select).range(from, from + PAGE - 1);
-    if (filter) q = q.eq(filter.col, filter.val);
+    if (opts?.filter) q = q.eq(opts.filter.col, opts.filter.val);
+    if (opts?.dateRange?.desde) q = q.gte(opts.dateRange.col, opts.dateRange.desde);
+    if (opts?.dateRange?.hasta) q = q.lte(opts.dateRange.col, opts.dateRange.hasta);
     const { data } = await q;
     if (!data || data.length === 0) break;
     all = all.concat(data);
@@ -36,16 +41,26 @@ interface ConductorAgg {
   quincenas: Record<string, { timbradas: number; viajes: number; dias: number; vp: number; vpAusencia: number; vpAccidente: number }>;
 }
 
-export async function getRendimientoData() {
+export async function getRendimientoData(fechaDesde?: string, fechaHasta?: string) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  const dateRange = (fechaDesde || fechaHasta)
+    ? { desde: fechaDesde, hasta: fechaHasta }
+    : undefined;
+
   const [conductores, cierres, vp, aus] = await Promise.all([
-    fetchAll(supabase, "conductores_con_grupo", "cedula, nombre, codigo, tipo_conductor, fecha_ingreso, estado, grupo_antiguedad, meses_antiguedad", { col: "estado", val: "ACTIVO" }),
-    fetchAll(supabase, "cierres_diarios", "cod_conductor, fecha, viajes, timbradas, diff_tim, prom_tim, ruta"),
-    fetchAll(supabase, "viajes_perdidos", "cedula_conductor, tipologia, novedad, fecha, periodo, quincena, conductor_nombre"),
+    fetchAll(supabase, "conductores_con_grupo", "cedula, nombre, codigo, tipo_conductor, fecha_ingreso, estado, grupo_antiguedad, meses_antiguedad", {
+      filter: { col: "estado", val: "ACTIVO" },
+    }),
+    fetchAll(supabase, "cierres_diarios", "cod_conductor, fecha, viajes, timbradas, diff_tim, prom_tim, ruta", {
+      dateRange: dateRange ? { col: "fecha", ...dateRange } : undefined,
+    }),
+    fetchAll(supabase, "viajes_perdidos", "cedula_conductor, tipologia, novedad, fecha, periodo, quincena, conductor_nombre", {
+      dateRange: dateRange ? { col: "fecha", ...dateRange } : undefined,
+    }),
     fetchAll(supabase, "ausentismo", "cedula, dias_it_pagados"),
   ]);
 
