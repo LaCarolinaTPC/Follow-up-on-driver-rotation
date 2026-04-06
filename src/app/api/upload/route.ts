@@ -74,6 +74,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // For conductores: delete only records with matching estado
+    if (fileType === "conductores_activos") {
+      await supabase.from("conductores").delete().eq("estado", "ACTIVO");
+    }
+    if (fileType === "conductores_retirados") {
+      await supabase.from("conductores").delete().eq("estado", "RETIRADO");
+    }
+
     const results: UploadResult[] = [];
 
     for (const file of files) {
@@ -128,7 +136,11 @@ export async function POST(request: NextRequest) {
         const chunk = processed.records.slice(i, i + 200);
 
         let error;
-        if (config.strategy === "upsert" && config.onConflict) {
+        if (fileType === "conductores_activos" || fileType === "conductores_retirados") {
+          ({ error } = await supabase
+            .from(config.table)
+            .upsert(chunk, { onConflict: "cedula", ignoreDuplicates: true }));
+        } else if (config.strategy === "upsert" && config.onConflict) {
           ({ error } = await supabase
             .from(config.table)
             .upsert(chunk, { onConflict: config.onConflict }));

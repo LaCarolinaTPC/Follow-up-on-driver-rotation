@@ -57,13 +57,29 @@ export async function POST(request: NextRequest) {
           await supabase.from(config.table).delete().eq("periodo", periodo);
         }
       }
+      // For conductores: delete only records with matching estado before re-inserting
+      // This prevents retirados from overwriting activos and vice versa
+      if (fileType === "conductores_activos") {
+        await supabase.from("conductores").delete().eq("estado", "ACTIVO");
+      }
+      if (fileType === "conductores_retirados") {
+        await supabase.from("conductores").delete().eq("estado", "RETIRADO");
+      }
       return NextResponse.json({ ok: true });
     }
 
     // CHUNK: insert/upsert a batch of records
     if (action === "chunk" && records?.length) {
       let error;
-      if (config.strategy === "upsert" && config.onConflict) {
+      // Conductores: use insert (duplicates already removed in prepare step)
+      // Cierres: use upsert to handle duplicates across multiple files
+      if (fileType === "conductores_activos" || fileType === "conductores_retirados") {
+        // Use upsert with ignoreDuplicates to skip cedulas that already exist
+        // (e.g., an activo cedula that also appears in retirados file)
+        ({ error } = await supabase
+          .from(config.table)
+          .upsert(records, { onConflict: "cedula", ignoreDuplicates: true }));
+      } else if (config.strategy === "upsert" && config.onConflict) {
         ({ error } = await supabase
           .from(config.table)
           .upsert(records, { onConflict: config.onConflict }));
