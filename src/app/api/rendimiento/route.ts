@@ -198,7 +198,7 @@ export async function GET() {
     sinVP: conductorList.filter((c) => c.vpTotal === 0).length,
     conAccidente: conductorList.filter((c) => c.accHistorico).length,
     promTimbradas:
-      conductorList.length > 0
+      conductorList.filter((c) => c.diasTrabajados > 0).length > 0
         ? Math.round(
             conductorList.reduce((s, c) => s + c.totalTimbradas, 0) /
               conductorList.filter((c) => c.diasTrabajados > 0).length
@@ -209,12 +209,13 @@ export async function GET() {
   // GRUPOS SUMMARY
   const gruposSummary = grupos.map((g) => {
     const gc = conductorList.filter((c) => c.grupo === g);
+    const gcWorked = gc.filter((c) => c.diasTrabajados > 0);
     return {
       grupo: g,
       conductores: gc.length,
       timPromedio:
-        gc.length > 0
-          ? Math.round(gc.reduce((s, c) => s + c.totalTimbradas, 0) / gc.filter(c => c.diasTrabajados > 0).length || 1)
+        gcWorked.length > 0
+          ? Math.round(gc.reduce((s, c) => s + c.totalTimbradas, 0) / gcWorked.length)
           : 0,
       vpTotal: gc.reduce((s, c) => s + c.vpTotal, 0),
       vpPromedio:
@@ -384,6 +385,20 @@ export async function GET() {
       (ausPorConductor[a.cedula] || 0) + (a.dias_it_pagados || 0);
   }
 
+  // Compute date range label from actual cierres data
+  const allFechas = cierres.map((c) => c.fecha).filter(Boolean).sort();
+  let periodoLabel = "";
+  if (allFechas.length > 0) {
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const first = allFechas[0];
+    const last = allFechas[allFechas.length - 1];
+    const m1 = meses[parseInt(first.slice(5, 7), 10) - 1];
+    const m2 = meses[parseInt(last.slice(5, 7), 10) - 1];
+    const y1 = first.slice(0, 4);
+    const y2 = last.slice(0, 4);
+    periodoLabel = m1 === m2 && y1 === y2 ? `${m1} ${y1}` : `${m1} — ${m2} ${y2}`;
+  }
+
   return NextResponse.json({
     resumen,
     grupos: gruposSummary,
@@ -395,5 +410,6 @@ export async function GET() {
     accidentalidad,
     tablaCompleta,
     ausPorConductor,
+    periodoLabel,
   });
 }

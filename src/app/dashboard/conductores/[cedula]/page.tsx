@@ -22,8 +22,7 @@ export default async function ConductorPage({
     notFound();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { conductor, cierres, viajes_perdidos, ausentismo, familia, kpis } = profile as any;
+  const { conductor, cierres, viajes_perdidos, ausentismo, familia, kpis } = profile;
 
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
