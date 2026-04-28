@@ -4,9 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Users,
-  BarChart3,
-  FileSpreadsheet,
+  IdCard,
+  Gauge,
+  Database,
   PanelLeftClose,
   Menu,
 } from "lucide-react";
@@ -14,9 +14,9 @@ import { useSidebar } from "./SidebarContext";
 import { LogoutButton } from "./LogoutButton";
 
 const navItems = [
-  { label: "Conductores", href: "/dashboard/conductores", icon: Users },
-  { label: "Rendimiento", href: "/dashboard/rendimiento", icon: BarChart3 },
-  { label: "Datos", href: "/dashboard/datos", icon: FileSpreadsheet },
+  { label: "Conductores", href: "/dashboard/conductores", icon: IdCard },
+  { label: "Rendimiento", href: "/dashboard/rendimiento", icon: Gauge },
+  { label: "Datos", href: "/dashboard/datos", icon: Database },
 ];
 
 export function Sidebar({ userEmail }: { userEmail?: string }) {
