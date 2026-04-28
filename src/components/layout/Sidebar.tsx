@@ -7,6 +7,7 @@ import {
   IdCard,
   Gauge,
   Database,
+  FlaskConical,
   PanelLeftClose,
   Menu,
 } from "lucide-react";
@@ -17,6 +18,7 @@ const navItems = [
   { label: "Conductores", href: "/dashboard/conductores", icon: IdCard },
   { label: "Rendimiento", href: "/dashboard/rendimiento", icon: Gauge },
   { label: "Datos", href: "/dashboard/datos", icon: Database },
+  { label: "Prueba", href: "#", icon: FlaskConical },
 ];
 
 export function Sidebar({ userEmail }: { userEmail?: string }) {
